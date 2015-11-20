@@ -62,7 +62,8 @@ def resources_discovery(ch, method, properties, body):
 	message = json.loads(body.decode())
 
 	try:
-		stdout.write('[*] New resource(s) from {0} :\n'.format(message['uuid']))
+		uuid = message['uuid']
+		stdout.write('[*] New resource(s) from {0} :\n'.format(uuid))
 
 		for resource in message['resources']:
 			address = resource['address']
@@ -71,8 +72,35 @@ def resources_discovery(ch, method, properties, body):
 			dimension = resource['dimension']
 
 			stdout.write('\t - {0} : {1};{2};{3}\n'.format(address, mode, type, dimension))
-	except KeyError:
-		stderr.write('[x] Bad request :\n\t=> {0}\n'.format(message))
+
+			device = api.device.get(params=dict(uuid=uuid))
+
+			# If device does not exist
+			if device.data['meta']['total_count'] == 0:
+				device_data = {
+					'uuid' : uuid,
+				}
+
+				api.device.post(device_data)
+
+			device_id = api.device.get(params=dict(uuid=uuid)).data['objects'][0]['id']
+
+			# If resource does not exist
+			if api.resource.get(params=dict(device__uuid=uuid, address=address)).data['meta']['total_count'] == 0:
+				resource_data = {
+					'address' : address,
+					'device' : '/api/v1/device/{0}/'.format(device_id),
+					'mode' : mode,
+					'type' : type,
+					'dimension' : dimension,
+				}
+
+				api.resource.post(resource_data)
+	except KeyError as e:
+		stderr.write('[x] Bad request : unknown key {0}\n\t=> {1}\n'.format(e, message))
+	except drest.exc.dRestRequestError as e:
+		stderr.write('[x] REST error : {0}\n'.format(e))
+		return
 
 	ch.basic_ack(delivery_tag = method.delivery_tag)
 
