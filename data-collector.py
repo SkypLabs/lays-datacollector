@@ -9,14 +9,9 @@ from sys import exit, stdout, stderr
 
 lays_admin_username = getenv('LAYS_ADMIN_USERNAME', 'admin')
 lays_admin_apikey = getenv('LAYS_ADMIN_APIKEY', '')
-lays_debug = getenv('LAYS_DEBUG')
+lays_debug = getenv('LAYS_DEBUG', 'false')
 
 if lays_debug == 'true':
-	debug = True
-else:
-	debug = False
-
-if debug:
 	webapp_host = getenv('WEBSERVER_PORT_8000_TCP_ADDR', 'localhost')
 	webapp_port = 8000
 else:
