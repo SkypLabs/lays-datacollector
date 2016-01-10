@@ -7,6 +7,8 @@ from os import getenv
 from time import sleep
 from sys import exit, stdout, stderr
 
+lays_admin_username = getenv('LAYS_ADMIN_USERNAME', 'admin')
+lays_admin_apikey = getenv('LAYS_ADMIN_APIKEY', '')
 lays_debug = getenv('LAYS_DEBUG')
 
 if lays_debug == 'true':
@@ -50,7 +52,7 @@ stdout.write('[*] Connection to WebApp API ({0}) ...\n'.format(webapp_host))
 
 try:
 	api = drest.api.TastyPieAPI('http://{0}:{1}/api/v1/'.format(webapp_host, webapp_port))
-	api.auth('admin', '')
+	api.auth(lays_admin_username, lays_admin_apikey)
 except (drest.exc.dRestAPIError, drest.exc.dRestRequestError) as e:
 	stderr.write('[x] Failed ! : {0}\n'.format(e))
 	amqp.close()
