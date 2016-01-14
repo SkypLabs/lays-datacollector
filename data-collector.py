@@ -108,8 +108,8 @@ def data_collector(ch, method, properties, body):
 		stdout.write('[*] New data from {0} :\n'.format(message['uuid']))
 
 		for data in message['data']:
-			address = resource['address']
-			value = resource['value']
+			address = data['address']
+			value = data['value']
 
 			stdout.write('\t - {0} : {1}\n'.format(address, value))
 	except KeyError:
